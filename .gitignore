@@ -1,0 +1,7 @@
+*.o
+*.d
+*.hex
+*.elf
+nbproject
+build
+tools/arm
