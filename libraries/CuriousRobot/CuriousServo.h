@@ -15,43 +15,42 @@
 #define INVERSE     0x80        // Set the inverse bit if the wheel
                                 // faces the other direction
 
-enum ServoType {
-    Positional = (uint8_t)0,
-    Continuous
-};
-
 class CuriousServo
 {
     public:
+        uint8_t type;
+        uint8_t id;
+        uint8_t gpio;
+
         CuriousServo(uint8_t _type, uint8_t _id, uint8_t _gpio)
         {
             type = _type;
             id = _id;
             gpio = _gpio;
             _dutyCycle = 1500;  // Use a safe init value
-            expireTime = 0;
-            _setTime = 0;
+            _rotationEndTime = 0;
+            _rotationStartTime = 0;
             _servo.attach(_gpio);
         }
 
-        uint8_t type;
-        uint8_t id;
-        uint8_t gpio;
-        unsigned long expireTime;
+        uint8_t isRotating() const { return _rotationEndTime > 0; }
+        uint16_t getDutyCycle() const { return _dutyCycle; }
 
-        void checkExpired()
+        void clearExpiredRotation()
         {
-            unsigned long msecs = millis();
-            
-            if (msecs - _setTime > expireTime) {
-                set_dutyCycle(1500);
-                expireTime = 0;
+            if (millis() >= _rotationEndTime) {
+                setDutyCycle(1500);
+                _rotationEndTime = 0;
             }
         }
 
-        void setExpire(unsigned long duration) { expireTime = duration; _setTime = millis(); }
-        uint16_t get_dutyCycle() const { return _dutyCycle; }
-        int8_t set_dutyCycle(uint16_t dt)
+        void setRotateDuration(unsigned long duration)
+        {
+            _rotationStartTime = millis();
+            _rotationEndTime = _rotationStartTime + duration;
+        }
+
+        int8_t setDutyCycle(uint16_t dt)
         { 
             if (type & INVERSE) {
                 dt = (1500 - dt) + 1500;
@@ -69,7 +68,9 @@ class CuriousServo
     private:
         Servo _servo;
         uint16_t _dutyCycle;
-        unsigned long _setTime;
+        unsigned long _rotationStartTime;
+        unsigned long _rotationEndTime;
+
 };
 
 

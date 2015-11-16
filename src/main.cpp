@@ -15,12 +15,8 @@
 #define LIST                    0x10
 
 
-static MessageReader reader;
 static ServoController ctrl(3);
-static unsigned long lastUpdate;
-static uint8_t toggle;
 static unsigned int flashDelay;
-static unsigned char *message;
 
 void processMessage(unsigned char *message) {
     uint8_t length = message[0];
@@ -80,7 +76,7 @@ void processMessage(unsigned char *message) {
             Message msg;
             for (uint8_t i = 0; i < ctrl.get_count(); i++) {
                 CuriousServo *servo = ctrl.getServo(i);
-                uint16_t dc = servo->get_dutyCycle();
+                uint16_t dc = servo->getDutyCycle();
 
                 msg.AddByte(i);
                 msg.AddByte(servo->type);
@@ -96,25 +92,28 @@ void processMessage(unsigned char *message) {
 }
 
 void flashLed() {
+    static uint8_t toggle = 0;
+    static unsigned long lastUpdate = 0;
+
     if ((millis() - lastUpdate) > flashDelay) {
-        digitalWrite(LED_PIN, toggle ^= 1);
-        lastUpdate = millis();
-    }
+            digitalWrite(LED_PIN, toggle ^= 1);
+            lastUpdate = millis();
+        }
 }
 
 void setup() {
     Serial1.begin(115200, SERIAL_8N1);
     pinMode(LED_PIN, OUTPUT);
-    lastUpdate = 0;
-    toggle = 0;
     flashDelay = 1000;
-    message = NULL;
     Message msg;
     msg.AddBytes((unsigned char*)"CuriousRobot>", 13);
     Serial1.write(msg.Serialize(), msg.WireSize());
 }
 
 extern "C" int main(void) {
+    unsigned char *message;
+    MessageReader reader;
+
     setup();
 
     while (1) {
@@ -134,7 +133,10 @@ extern "C" int main(void) {
             processMessage(message);
         }
 
+        // Display the system status
         flashLed();
+
+        // Let the servo controller clear any expired movements
         ctrl.checkExpiration();
 
         while (Serial1.available()) {

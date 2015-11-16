@@ -11,9 +11,9 @@ class MessageReader
 {
 	public:
             MessageReader();
-            int AddChar(char ch);
+            int AddChar(char ch) { return _queue.enqueue(ch); };
             unsigned char *ProcessQueue();
-            unsigned char GetState();
+            unsigned char GetState() const { return _currentState; };
 	private:
             void _resetState();
             QueueArray <char> _queue;

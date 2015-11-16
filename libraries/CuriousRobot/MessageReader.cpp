@@ -8,18 +8,6 @@ MessageReader::MessageReader()
     _currentMessageSize = 0x0;
 }
 
-// Called by external function to add character to the
-// processing queue.
-int MessageReader::AddChar(char ch)
-{
-    return _queue.enqueue(ch);
-}
-
-unsigned char MessageReader::GetState()
-{
-    return _currentState;
-}
-
 void MessageReader::_resetState()
 {
     _currentRead = 0;

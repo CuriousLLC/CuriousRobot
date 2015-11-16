@@ -42,14 +42,6 @@ unsigned char *Message::Serialize()
 }
 
 /*
- * This is the size of the message on the wite on the wite
- */
-uint8_t Message::WireSize()
-{
-    return _dataPtr + 1;    // Makes sure EOM has room
-}
-
-/*
  * Reset this message back to the default state.
  * Useful in loops where you want to save allocations.
  */

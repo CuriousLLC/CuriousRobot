@@ -32,7 +32,7 @@ int8_t  ServoController::addServo(uint8_t type, uint8_t pwm)
     return servo->id;
 }
 
-CuriousServo * ServoController::getServo(uint8_t id)
+CuriousServo * ServoController::getServo(uint8_t id) const
 {
     if (id >= _servoCount) {
         return NULL;
@@ -47,7 +47,7 @@ int8_t ServoController::rotateServoType(uint8_t mask, uint16_t milliSeconds)
         CuriousServo *servo = _servoList[i];
         
         if ((servo->type & 0x0f) == (mask & 0x0f)) {
-            servo->set_dutyCycle(milliSeconds);
+            servo->setDutyCycle(milliSeconds);
         }
     }
 
@@ -60,7 +60,7 @@ int8_t ServoController::rotateServoGpio(uint8_t gpio, uint16_t milliSeconds)
         CuriousServo *servo = _servoList[i];
         
         if (servo->gpio == gpio) {
-            servo->set_dutyCycle(milliSeconds);
+            servo->setDutyCycle(milliSeconds);
         }
     }
 
@@ -73,19 +73,8 @@ int8_t ServoController::rotateServoTypeDuration(uint8_t mask, uint16_t pulseWidt
         CuriousServo *servo = _servoList[i];
         
         if ((servo->type & 0x0f) == (mask & 0x0f)) {
-            servo->set_dutyCycle(pulseWidth);
-            servo->setExpire(milliSeconds);
-            /*
-            if (timerOne.isrCallback == NULL) {
-                unsigned long usecs = (unsigned long)millis * 1000;
-                timerOne.initialize(usecs);
-                timerOne.attachInterrupt(timerOneISR);
-            } else if (timerThree.isrCallback == NULL) {
-                unsigned long usecs = (unsigned long)millis * 1000;
-                timerThree.initialize(usecs);
-                timerThree.attachInterrupt(timerThreeISR);
-            }*/
-
+            servo->setDutyCycle(pulseWidth);
+            servo->setRotateDuration(milliSeconds);
         }
     }
 
@@ -98,31 +87,21 @@ int8_t ServoController::rotateServoGpioDuration(uint8_t gpio, uint16_t pulseWidt
         CuriousServo *servo = _servoList[i];
         
         if (servo->gpio == gpio) {
-            servo->set_dutyCycle(pulseWidth);
-            servo->setExpire(milliSeconds);
-            /*
-            if (timerOne.isrCallback == NULL) {
-                unsigned long usecs = (unsigned long)millis * 1000;
-                timerOne.initialize(usecs);
-                timerOne.attachInterrupt(timerOneISR);
-            } else if (timerThree.isrCallback == NULL) {
-                unsigned long usecs = (unsigned long)millis * 1000;
-                timerThree.initialize(usecs);
-                timerThree.attachInterrupt(timerThreeISR);
-            }*/
+            servo->setDutyCycle(pulseWidth);
+            servo->setRotateDuration(milliSeconds);
         }
     }
 
     return 1;
 }
 
-void ServoController::checkExpiration()
+void ServoController::checkExpiration() const
 {
     for (uint8_t i=0; i<_servoCount; i++) {
         CuriousServo *servo = _servoList[i];
         
-        if (servo->expireTime > 0) {
-            servo->checkExpired();
+        if (servo->isRotating()) {
+            servo->clearExpiredRotation();
         }
     }
 }
