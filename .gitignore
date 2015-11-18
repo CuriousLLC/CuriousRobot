@@ -5,3 +5,4 @@
 nbproject
 build
 tools/arm
+tests/run_tests

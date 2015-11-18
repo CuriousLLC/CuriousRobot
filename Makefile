@@ -40,6 +40,7 @@ LIBRARYPATH = $(abspath $(CURDIR)/libraries)
 # path location for the arm-none-eabi compiler
 COMPILERPATH = $(TOOLSPATH)/arm/bin
 
+TESTDIR = /home/rday/Development/Teensyduino/Robot/gtest/googletest/googletest
 #************************************************************************
 # Settings below this point usually do not need to be edited
 #************************************************************************
@@ -48,7 +49,7 @@ COMPILERPATH = $(TOOLSPATH)/arm/bin
 CPPFLAGS = -Wall -g -Os -ffunction-sections -fdata-sections -nostdlib -MMD $(OPTIONS) -Isrc -I$(COREPATH)
 
 # compiler options for C++ only
-CXXFLAGS = -std=gnu++0x -felide-constructors -fno-exceptions -fno-rtti
+CXXFLAGS = -std=gnu++11 -felide-constructors -fno-exceptions -fno-rtti
 
 # compiler options for C only
 CFLAGS =
@@ -79,18 +80,20 @@ TCPP_FILES := $(wildcard $(COREPATH)/*.cpp)
 C_FILES := $(wildcard src/**/*.c) $(wildcard src/*.c)
 CPP_FILES := $(wildcard src/**/*.cpp) $(wildcard src/*.cpp)
 INO_FILES := $(wildcard src/**/*.ino)
+TEST_FILES := $(wildcard tests/*.cpp)
 
 # include paths for libraries
 L_INC := -I$(LIBRARYPATH) -Iteensy3/
 
-#$(foreach lib,$(filter %/, $(wildcard $(LIBRARYPATH)/*/)), -I$(lib))
-
 TEENSY_SOURCES := $(TCPP_FILES:.cpp=.o) $(TC_FILES:.c=.o)
 LIB_SOURCES := $(LC_FILES:.c=.o) $(LCPP_FILES:.cpp=.o)
 PROJECT_SOURCES := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(INO_FILES:.ino=.o)
+TEST_SOURCES := $(TEST_FILES:.cpp=.o)
+
 TEENSY_OBJS := $(foreach src,$(TEENSY_SOURCES), $(BUILDDIR)/$(src))
 LIB_OBJS := $(foreach src,$(LIB_SOURCES), $(BUILDDIR)/$(src))
 PROJECT_OBJS := $(foreach src,$(PROJECT_SOURCES), $(BUILDDIR)/$(src))
+TEST_OBJS := $(foreach src,$(TEST_SOURCES), $(BUILDDIR)/$(src))
 
 all: hex
 	@echo "Building all"
@@ -160,3 +163,19 @@ clean:
 	@echo Cleaning...
 	@rm -rf "$(BUILDDIR)"
 	@rm -f "$(TARGET).elf" "$(TARGET).hex"
+	@rm tests/*.o
+
+
+$(BUILDDIR)/tests/%.o: tests/%.cpp
+	@echo "[BUILDING TEST]\t$<"
+	@mkdir -p "$(dir $@)"
+	@g++ $(L_INC) -std=gnu++11 -Itests/ -c "$<" -o "$@"
+
+$(BUILDDIR)/tests/Message.o:
+	@g++ $(L_INC) -std=gnu++11 -Itests/ -c libraries/CuriousRobot/Message.cpp -o $(BUILDDIR)/tests/Message.o
+
+test:  $(TEST_OBJS) $(BUILDDIR)/tests/Message.o
+	@echo [RUNNING TESTS]
+	@g++ $(BUILDDIR)/tests/*.o -o tests/run_tests
+	@tests/run_tests
+	
