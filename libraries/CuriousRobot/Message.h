@@ -34,9 +34,7 @@ class Message
             int8_t AddBytes(unsigned char *bytes, unsigned int size);
             unsigned char *Serialize();
 
-            /*
-             * This is the size of the message on the wite on the wite
-             */
+            // This is the size of the message on the wite on the wite
             uint8_t WireSize() const { return _dataPtr + 1; };
 
             void Reset();

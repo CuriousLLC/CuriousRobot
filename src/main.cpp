@@ -38,9 +38,7 @@ void processMessage(unsigned char *message) {
             // moving straight forward or backward in a single
             // message.
             uint8_t mask = message[2];
-            uint16_t pulseWidth = message[3];
-            pulseWidth <<= 8;
-            pulseWidth += message[4];
+            uint16_t pulseWidth = (message[3] << 8) + message[4];
 
             ctrl.rotateServoType(mask, pulseWidth);
             break;
