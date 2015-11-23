@@ -11,10 +11,10 @@ TEENSY = LC
 TEENSY_CORE_SPEED = 48000000
 
 # Defines
-OPTIONS = -D__MKL26Z64__ -DTEENSYDUINO=125 -DARDUINO=10605 -DF_CPU=48000000 -DARDUINO_ARCH_AVR -DUSB_SERIAL -DLAYOUT_US_ENGLISH
+DEFINES = -D__MKL26Z64__ -DTEENSYDUINO=125 -DARDUINO=10605 -DF_CPU=48000000 -DARDUINO_ARCH_AVR -DUSB_SERIAL -DLAYOUT_US_ENGLISH
 
 # Chip specific
-OPTIONS += -mthumb -mcpu=cortex-m0plus -fsingle-precision-constant
+OPTIONS = $(DEFINES) -mthumb -mcpu=cortex-m0plus -fsingle-precision-constant -Wall -Wconversion
 
 # directory to build in
 BUILDDIR = $(abspath $(CURDIR)/build)
@@ -57,13 +57,11 @@ CFLAGS =
 # linker options
 LDFLAGS = -Os -Wl,--gc-sections,--relax,--defsym=__rtc_localtime=0 -T$(LDSCRIPT) --specs=nano.specs -fsingle-precision-constant -mthumb -mcpu=cortex-m0plus
 
-# additional libraries to link
-LIBS = -lm -larm_cortexM0l_math
-
 # names for the compiler programs
 CC = $(abspath $(COMPILERPATH))/arm-none-eabi-gcc
 CXX = $(abspath $(COMPILERPATH))/arm-none-eabi-g++
 OBJCOPY = $(abspath $(COMPILERPATH))/arm-none-eabi-objcopy
+OBJDUMP = $(abspath $(COMPILERPATH))/arm-none-eabi-objdump
 SIZE = $(abspath $(COMPILERPATH))/arm-none-eabi-size
 STRIP = $(abspath $(COMPILERPATH))/arm-none-eabi-strip
 AR = $(abspath $(COMPILERPATH))/arm-none-eabi-ar
@@ -155,6 +153,7 @@ $(TARGET).elf: $(TEENSY_OBJS) $(LIB_OBJS) $(PROJECT_OBJS)
 	$(SIZE) "$<"
 	$(OBJCOPY) -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 "$<" "$@"
 	$(OBJCOPY) -O ihex -R .eeprom "$<" "$@"
+	$(OBJDUMP) -D $(TARGET).elf > $(TARGET).list
 
 # compiler generated dependency info
 -include $(OBJS:.o=.d)
@@ -163,18 +162,21 @@ clean:
 	@echo Cleaning...
 	@rm -rf "$(BUILDDIR)"
 	@rm -f "$(TARGET).elf" "$(TARGET).hex"
-	@rm tests/*.o
+	@rm -f tests/*.o
 
 
 $(BUILDDIR)/tests/%.o: tests/%.cpp
 	@echo "[BUILDING TEST]\t$<"
 	@mkdir -p "$(dir $@)"
-	@g++ $(L_INC) -std=gnu++11 -Itests/ -c "$<" -o "$@"
+	@g++ $(L_INC) $(DEFINES) -fsingle-precision-constant -std=gnu++11 -Itests/ -c "$<" -o "$@"
 
 $(BUILDDIR)/tests/Message.o:
 	@g++ $(L_INC) -std=gnu++11 -Itests/ -c libraries/CuriousRobot/Message.cpp -o $(BUILDDIR)/tests/Message.o
 
-test:  $(TEST_OBJS) $(BUILDDIR)/tests/Message.o
+$(BUILDDIR)/tests/ServoController.o:
+	@g++ $(L_INC) -std=gnu++11 -Itests/ -c libraries/CuriousRobot/ServoController.cpp -o $(BUILDDIR)/tests/ServoController.o
+
+test:  $(TEST_OBJS) $(BUILDDIR)/tests/Message.o $(BUILDDIR)/tests/ServoController.o
 	@echo [RUNNING TESTS]
 	@g++ $(BUILDDIR)/tests/*.o -o tests/run_tests
 	@tests/run_tests
