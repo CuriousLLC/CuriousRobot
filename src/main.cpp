@@ -5,7 +5,7 @@
 #include <CuriousRobot/ServoController.h>
 #include <CuriousRobot/Message.h>
 
-#define LED_PIN   7
+#define LED_PIN   13
 
 #define ADD_SERVO               0x01
 #define ROTATE_TYPE             0x02
