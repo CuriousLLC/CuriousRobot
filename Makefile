@@ -168,13 +168,13 @@ clean:
 $(BUILDDIR)/tests/%.o: tests/%.cpp
 	@echo "[BUILDING TEST]\t$<"
 	@mkdir -p "$(dir $@)"
-	@g++ $(L_INC) $(DEFINES) -fsingle-precision-constant -std=gnu++11 -Itests/ -c "$<" -o "$@"
+	@g++ $(L_INC) $(DEFINES) -fsingle-precision-constant -Itests/ -c "$<" -o "$@"
 
 $(BUILDDIR)/tests/Message.o:
-	@g++ $(L_INC) -std=gnu++11 -Itests/ -c libraries/CuriousRobot/Message.cpp -o $(BUILDDIR)/tests/Message.o
+	@g++ $(L_INC) $(DEFINES) -std=gnu++11 -Itests/ -c libraries/CuriousRobot/Message.cpp -o $(BUILDDIR)/tests/Message.o
 
 $(BUILDDIR)/tests/ServoController.o:
-	@g++ $(L_INC) -std=gnu++11 -Itests/ -c libraries/CuriousRobot/ServoController.cpp -o $(BUILDDIR)/tests/ServoController.o
+	@g++ $(L_INC) $(DEFINES) -std=gnu++11 -Itests/ -c libraries/CuriousRobot/ServoController.cpp -o $(BUILDDIR)/tests/ServoController.o
 
 test:  $(TEST_OBJS) $(BUILDDIR)/tests/Message.o $(BUILDDIR)/tests/ServoController.o
 	@echo [RUNNING TESTS]

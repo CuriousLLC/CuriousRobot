@@ -40,7 +40,7 @@ class Message
             void Reset();
 	private:
             unsigned char _messageData[MAX_SIZE + 1];   // EOM will be the last byte
-            uint8_t _dataPtr = 2;                       // Start of data segment
+            uint8_t _dataPtr;                       // Start of data segment
 };
 
 #endif	/* MESSAGE_H */

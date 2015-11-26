@@ -8,9 +8,6 @@
 #ifndef CATCH_TESTS_H
 #define	CATCH_TESTS_H
 
-// Will get defined in Teensy library
-unsigned long millis();
-
 
 #endif	/* CATCH_TESTS_H */
 

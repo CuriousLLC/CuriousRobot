@@ -2,6 +2,9 @@
 #include "catch.hpp"
 #include "catch_tests.h"
 
+// The Teensy libraries will be looking for this variable
+uint32_t systick_millis_count = 0;
+
 std::string hexStr(const std::string& data)
 {
     std::stringstream ss;

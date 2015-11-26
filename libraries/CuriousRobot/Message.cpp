@@ -4,6 +4,7 @@ Message::Message()
 {
     memset(_messageData, 0, sizeof(_messageData));
     _messageData[0] = SOM;
+    _dataPtr = 2;
 }
 
 int8_t Message::AddByte(unsigned char ch)
