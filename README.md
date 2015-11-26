@@ -27,3 +27,8 @@ There are several messages types:
 * Rotate servo - Rotates a single servo. This allows the user to turn in one direction.
 * Rotate type duration - Rotates every servo of a given type for a given period of time.
 * Rotate servo duration - Rotates a single servo for a given period of time.
+
+This package can be used with the Wifi package. The Wifi package will read UDP datagrams off the network
+and send the payload over serial to this package.
+
+* https://github.com/CuriousLLC/RobotWifi
