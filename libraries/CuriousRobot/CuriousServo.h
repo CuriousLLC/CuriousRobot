@@ -8,6 +8,7 @@
 #ifndef CURIOUSSERVO_H
 #define	CURIOUSSERVO_H
 
+#include "core_pins.h"
 #include <Servo/Servo.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -36,6 +37,10 @@ class CuriousServo
         uint8_t isRotating() const { return _rotationEndTime > 0; }
         uint16_t getDutyCycle() const { return _dutyCycle; }
 
+        /**
+         * Set the duty cycle of this servo to mid-range if
+         * there was a rotation which has now expired.
+         */
         void clearExpiredRotation()
         {
             if (millis() >= _rotationEndTime) {
@@ -44,21 +49,33 @@ class CuriousServo
             }
         }
 
+        /**
+         * Set the duration for a current rotation to _duration_
+         * @param duration Milliseconds to rotate
+         */
         void setRotateDuration(unsigned long duration)
         {
             _rotationStartTime = millis();
             _rotationEndTime = _rotationStartTime + duration;
         }
 
-        int8_t setDutyCycle(uint16_t dt)
-        { 
+        /**
+         * Set this servos duty cycle to _pulseWidth_
+         * @param pulseWidth Microsecond pulse width
+         * @return -1 if width outside acceptable range, 0 if success
+         */
+        int8_t setDutyCycle(uint16_t pulseWidth)
+        {
+            // If this servo is an inverse servo, then it should rotate
+            // in the opposite direction.
             if (type & INVERSE) {
-                dt = (1500 - dt) + 1500;
+                pulseWidth = (1500 - pulseWidth) + 1500;
             }
 
-            if (900 <= dt && dt <= 2100) {
-                _dutyCycle = dt;
-                _servo.writeMicroseconds(dt);
+            // Try to keep the requested pulse width within normal range
+            if (900 <= pulseWidth && pulseWidth <= 2100) {
+                _dutyCycle = pulseWidth;
+                _servo.writeMicroseconds(pulseWidth);
                 return 0;
             }
             

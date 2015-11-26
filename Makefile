@@ -14,7 +14,7 @@ TEENSY_CORE_SPEED = 48000000
 DEFINES = -D__MKL26Z64__ -DTEENSYDUINO=125 -DARDUINO=10605 -DF_CPU=48000000 -DARDUINO_ARCH_AVR -DUSB_SERIAL -DLAYOUT_US_ENGLISH
 
 # Chip specific
-OPTIONS = $(DEFINES) -mthumb -mcpu=cortex-m0plus -fsingle-precision-constant -Wall -Wconversion
+OPTIONS = $(DEFINES) -mthumb -mcpu=cortex-m0plus -fsingle-precision-constant -Wall
 
 # directory to build in
 BUILDDIR = $(abspath $(CURDIR)/build)

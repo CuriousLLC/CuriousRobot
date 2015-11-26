@@ -16,6 +16,13 @@ int8_t Message::AddByte(unsigned char ch)
     return -1;
 }
 
+/**
+ * When adding multiple bytes at once, this is faster than calling
+ * AddByte() over and over.
+ * @param bytes Pointer to array of bytes
+ * @param size Number of bytes to add
+ * @return -1 if we would have exceeded our buffer. 0 for success
+ */
 int8_t Message::AddBytes(unsigned char *bytes, unsigned int size)
 {
     if (_dataPtr + size < (MAX_SIZE)) {
@@ -29,6 +36,12 @@ int8_t Message::AddBytes(unsigned char *bytes, unsigned int size)
     return -1;
 }
 
+/**
+ * A serialize message looks like
+ *    SOM + Size + Data + EOM
+ * 
+ * @return Pointer to serialized message
+ */
 unsigned char *Message::Serialize()
 {
     // The last byte will be set as the EOM.

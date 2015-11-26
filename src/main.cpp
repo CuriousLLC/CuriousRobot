@@ -18,8 +18,12 @@
 static ServoController ctrl(3);
 static unsigned int flashDelay;
 
+/**
+ * This function is our message processor. Any complete message can
+ * be passed to this function, and we will preform the requested task.
+ * @param message Pointer to message
+ */
 void processMessage(unsigned char *message) {
-    uint8_t length = message[0];
     uint8_t type = message[1];
 
     switch (type) {
@@ -45,7 +49,8 @@ void processMessage(unsigned char *message) {
         }
         case ROTATE_ONE:
         {
-            // Rotate a single servo
+            // Rotate a single servo at _pulseWidth_. This would be
+            // used for turning left or right.
             uint8_t gpio = message[2];
             uint16_t pulseWidth = (message[3] << 8) + message[4];
 
@@ -53,7 +58,10 @@ void processMessage(unsigned char *message) {
         }
         case ROTATE_TYPE_DURATION:
         {
-            // Rotate a single servo
+            // Rotate a type of servo at _pulseWidth_ for _milliSeconds_.
+            // This let's the user send a single command which will move
+            // a servo type for a certain period of time. This is much more
+            // accurate than the user having to account for network delay.
             uint8_t mask = message[2];
             uint16_t pulseWidth = (message[3] << 8) + message[4];
             uint16_t milliSeconds = (message[5] << 8) + message[6];
@@ -62,7 +70,9 @@ void processMessage(unsigned char *message) {
         }
         case ROTATE_ONE_DURATION:
         {
-            // Rotate a single servo
+            // Rotate a single servo at _pulseWidth_ for _milliSeconds_.
+            // Again, we handle the duration internally. The user doesn't
+            // have to stop us manually.
             uint8_t gpio = message[2];
             uint16_t pulseWidth = (message[3] << 8) + message[4];
             uint16_t milliSeconds = (message[5] << 8) + message[6];
@@ -89,6 +99,9 @@ void processMessage(unsigned char *message) {
     }
 }
 
+/**
+ * Simple function to toggle the LED if a certain duration has passed
+ */
 void flashLed() {
     static uint8_t toggle = 0;
     static unsigned long lastUpdate = 0;
@@ -126,6 +139,12 @@ extern "C" int main(void) {
                 break;
         }
 
+        // Find out if we have a completed message sitting in our buffer.
+        // If so, process it. The returned message is pointing to the
+        // actual buffer that ProcessQueue uses. So we have to process
+        // the message, or it will be overwritten.
+        // This works because there is no OS to preempt us, and no interrupts
+        // will mess with our buffer.
         message = reader.ProcessQueue();
         if (message != NULL) {
             processMessage(message);
@@ -145,4 +164,7 @@ extern "C" int main(void) {
             }
         }
     }
+    
+    // Never reached
+    return 0;
 }
