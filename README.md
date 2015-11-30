@@ -31,4 +31,5 @@ There are several messages types:
 This package can be used with the Wifi package. The Wifi package will read UDP datagrams off the network
 and send the payload over serial to this package.
 
-* https://github.com/CuriousLLC/RobotWifi
+* https://github.com/CuriousLLC/RobotWifi - ESP8266 wireless relay
+https://github.com/CuriousLLC/RobotController - Mobile controller
